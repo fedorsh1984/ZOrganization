@@ -1,71 +1,68 @@
-<mvc:View
-	controllerName="zorg.ZOrganizations2.controller.Worklist"
-	xmlns="sap.m"
-	xmlns:mvc="sap.ui.core.mvc"
-	xmlns:semantic="sap.f.semantic"
-	xmlns:footerbar="sap.ushell.ui.footerbar">
+<mvc:View xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:semantic="sap.f.semantic" xmlns:footerbar="sap.ushell.ui.footerbar" xmlns:fb="sap.ui.comp.filterbar" xmlns:vm="sap.ui.comp.variants" xmlns:l="sap.ui.layout" xmlns:core="sap.ui.core" controllerName="zorg.ZOrganizations2.controller.Worklist">
 
-	<semantic:SemanticPage
-		id="page"
-		headerPinnable="false"
-		toggleHeaderOnTitleClick="false">
+	<semantic:SemanticPage id="page" headerPinnable="true" toggleHeaderOnTitleClick="true">
 
 		<semantic:titleHeading>
-			<Title
-				text="{i18n>worklistTitle}"
-				level="H2"/>
+			<vm:VariantManagement standardItemText="My organizations">
+			</vm:VariantManagement>
 		</semantic:titleHeading>
 
-		<semantic:content>
-			<Table
-				id="table"
-				width="auto"
-				items="{
-					path: '/zord_organiz_cds',
-					sorter: {
-						path: 'name',
-						descending: false
-					}
-				}"
-				noDataText="{worklistView>/tableNoDataText}"
-				busyIndicatorDelay="{worklistView>/tableBusyDelay}"
-				growing="true"
-				growingScrollToLoad="true"
-				updateFinished=".onUpdateFinished">
+		<semantic:titleSnappedContent>
+			<Text text="{worklistView>/titleSnappedContent}"/>
+		</semantic:titleSnappedContent>
+		
+		<semantic:headerContent allowWrapping="true" >
+			<fb:FilterBar id="filterbar"  reset="onReset"  useToolbar = "false" showGoOnFB="false">
+				<fb:filterGroupItems>
+					<fb:FilterGroupItem groupName="__$INTERNAL$" name="ORG" label="Organization" partOfCurrentVariant="true" visibleInFilterBar="true">
+						<fb:control>
+							<Input xmlns="sap.m" value="" id="srchOrganization" submit = "onFilterSubmit"/>
+						</fb:control>				
+					</fb:FilterGroupItem>		
+					<fb:FilterGroupItem groupName="__$INTERNAL$" name="INN" label="INN" partOfCurrentVariant="true" visibleInFilterBar="true">
+						<fb:control>
+							<Input xmlns="sap.m" value="" id="srchINN" submit = "onFilterSubmit"/>
+						</fb:control>				
+					</fb:FilterGroupItem>
+				</fb:filterGroupItems>	
+			</fb:FilterBar>
+		</semantic:headerContent>
 
+		<semantic:content>
+			<Table id="table" width="auto" items="{path: '/zord_organiz_cds',      sorter: {       path: 'name',       descending: false      }     }" noDataText="{worklistView>/tableNoDataText}" busyIndicatorDelay="{worklistView>/tableBusyDelay}" growing="true" growingScrollToLoad="true" updateFinished=".onUpdateFinished">
 				<headerToolbar>
 					<OverflowToolbar>
-						<Title
-							id="tableHeader"
-							text="{worklistView>/worklistTableTitle}"
-							level="H3"/>
-						<ToolbarSpacer />
-						<SearchField
-							id="searchField"
-							tooltip="{i18n>worklistSearchTooltip}"
-							search=".onSearch">
+						<Title id="tableHeader" text="{worklistView>/worklistTableTitle}" level="H3"/>
+						<ToolbarSpacer/>
+						<SearchField id="searchField" tooltip="{i18n>worklistSearchTooltip}" search=".onSearch">
 							<layoutData>
-								<OverflowToolbarLayoutData
-									maxWidth="200px"
-									priority="NeverOverflow"/>
+								<OverflowToolbarLayoutData maxWidth="200px" priority="NeverOverflow"/>
 							</layoutData>
 						</SearchField>
 					</OverflowToolbar>
 				</headerToolbar>
-
 				<columns>
-					<Column id="nameColumn">
-						<Text text="{i18n>tableNameColumnTitle}" id="nameColumnTitle"/>
+					<Column id="Organization">
+						<Text text="{i18n>OrganizationName}" id="nameColumnTitle"/>
+					</Column><Column id="ColINN">
+					    <header>
+					        <Text text="{i18n>INN}" id="colINN"/>
+					    </header>
 					</Column>
+
+				    <Column id="column0">
+				        <header>
+				            <Text text="{i18n>Address}" id="text2"/>
+				        </header>
+				    </Column>
 				</columns>
 
 				<items>
-					<ColumnListItem
-						type="Navigation"
-						press=".onPress">
+					<ColumnListItem type="Navigation" press=".onPress">
 						<cells>
-							<ObjectIdentifier
-								title="{name}"/>
+							<ObjectIdentifier title="{name}" text="{id}"/>
+							<Text text="{inn}"/>
+							<Text xmlns="sap.m" text="{address}" id="cellAddress"/>
 						</cells>
 					</ColumnListItem>
 				</items>
@@ -81,7 +78,7 @@
 		</semantic:shareInJamAction>
 
 		<semantic:saveAsTileAction>
-			<footerbar:AddBookmarkButton id ="shareTile" title="{worklistView>/saveAsTileTitle}" />
+			<footerbar:AddBookmarkButton id="shareTile" title="{worklistView>/saveAsTileTitle}"/>
 		</semantic:saveAsTileAction>
 
 	</semantic:SemanticPage>

@@ -21,13 +21,14 @@ sap.ui.define([
 		 */
 		onInit : function () {
 			var oViewModel,
-				iOriginalBusyDelay,
-				oTable = this.byId("table");
+				iOriginalBusyDelay;
+				
+			this.oTable = this.byId("table");
 
 			// Put down worklist table's original value for busy indicator delay,
 			// so it can be restored later on. Busy handling on the table is
 			// taken care of by the table itself.
-			iOriginalBusyDelay = oTable.getBusyIndicatorDelay();
+			iOriginalBusyDelay = this.oTable.getBusyIndicatorDelay();
 			// keeps the search state
 			this._aTableSearchState = [];
 
@@ -42,11 +43,12 @@ sap.ui.define([
 				tableBusyDelay : 0
 			});
 			this.setModel(oViewModel, "worklistView");
-
+			oViewModel.setProperty("/titleSnappedContent", "Filtered by None");
+			
 			// Make sure, busy indication is showing immediately so there is no
 			// break after the busy indication for loading the view's meta data is
 			// ended (see promise 'oWhenMetadataIsLoaded' in AppController)
-			oTable.attachEventOnce("updateFinished", function(){
+			this.oTable.attachEventOnce("updateFinished", function(){
 				// Restore original busy indicator delay for worklist's table
 				oViewModel.setProperty("/tableBusyDelay", iOriginalBusyDelay);
 			});
@@ -56,6 +58,17 @@ sap.ui.define([
 				icon: "sap-icon://table-view",
 				intent: "#Organizations-display"
 			}, true);
+			
+			this.aFilterKeys = [
+				"name"
+				,"inn"
+			];
+			this.oSelectOrganiz = this.byId("srchOrganization");
+			this.oSelectINN = this.byId("srchINN");
+			var oFB = this.getView().byId("filterbar");
+			if (oFB) {
+				oFB.variantsInitialized();
+			}			
 		},
 
 		/* =========================================================== */
@@ -160,20 +173,68 @@ sap.ui.define([
 			});
 		},
 
+		_filterTable:function(aCurrentFilterValues)
+		{
+			// var oTable = this.byId("table");
+			// oViewModel = this.getModel("worklistView");
+			var aFilter = [];
+			aFilter = this._getFilters(aCurrentFilterValues);
+			this._applySearch(aFilter);
+			this.getModel("worklistView").setProperty("/titleSnappedContent", this._getFormattedSummaryText(aCurrentFilterValues) );
+			// oTable.getBinding("items").filter(this.getFilters(aCurrentFilterValues), "Application");
+			// this.getTableItems().filter(this.getFilters(aCurrentFilterValues), "Application");
+			// if (aTableSearchState.length !== 0) {
+			// 	oViewModel.setProperty("/tableNoDataText", this.getResourceBundle().getText("worklistNoDataWithSearchText"));
+			// }			
+			// this.updateFilterCriterias(this.getFilterCriteria(aCurrentFilterValues));			
+		},
+		
+
 		/**
 		 * Internal helper method to apply both filter and search state together on the list binding
 		 * @param {sap.ui.model.Filter[]} aTableSearchState An array of filters for the search
 		 * @private
 		 */
 		_applySearch: function(aTableSearchState) {
-			var oTable = this.byId("table"),
-				oViewModel = this.getModel("worklistView");
-			oTable.getBinding("items").filter(aTableSearchState, "Application");
+			var oViewModel = this.getModel("worklistView");
+			this.getTableItems().filter(aTableSearchState, "Application");
 			// changes the noDataText of the list in case there are no filter results
 			if (aTableSearchState.length !== 0) {
 				oViewModel.setProperty("/tableNoDataText", this.getResourceBundle().getText("worklistNoDataWithSearchText"));
 			}
-		}
+		},
+		// ** Filter functions
+		onFilterSubmit: function(oEvent){
+			var aCurrentFilterValues = [];
+			aCurrentFilterValues.push(this.oSelectOrganiz.getValue() );
+			aCurrentFilterValues.push(this.oSelectINN.getValue() );
+			this._filterTable(aCurrentFilterValues);			
+		},
+
+		getTableItems:function()
+		{
+			return this.oTable.getBinding("items");
+		},
+		_getFilters: function(aCurrentFilterValues) {
+		    var aFilters = [];
+			aFilters = this.aFilterKeys.reduce(function(result,element, i) {
+				if (aCurrentFilterValues[i] !== "")
+				{
+					result.push( new Filter(element, sap.ui.model.FilterOperator.Contains, aCurrentFilterValues[i]) );
+				}
+				return result;
+			}, []);
+			return aFilters;
+			
+		},
+		_getFormattedSummaryText: function(aFilterCriterias) {
+			if (aFilterCriterias.length > 0) {
+				var aFilter = aFilterCriterias.filter(filter => filter !== '' );
+				return "Filtered By (" + aFilter.length + "): " + aFilter.join(", ");
+			} else {
+				return "Filtered by None";
+			}
+		}		
 
 	});
 });
