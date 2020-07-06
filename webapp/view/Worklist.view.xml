@@ -1,34 +1,50 @@
-<mvc:View xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:semantic="sap.f.semantic" xmlns:footerbar="sap.ushell.ui.footerbar" xmlns:fb="sap.ui.comp.filterbar" xmlns:vm="sap.ui.comp.variants" xmlns:l="sap.ui.layout" xmlns:core="sap.ui.core" controllerName="zorg.ZOrganizations2.controller.Worklist">
+<mvc:View xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:semantic="sap.f.semantic" xmlns:footerbar="sap.ushell.ui.footerbar" xmlns:fb="sap.ui.comp.filterbar" xmlns:vm="sap.ui.comp.variants" xmlns:l="sap.ui.layout" xmlns:core="sap.ui.core" xmlns:smartTable="sap.ui.comp.smarttable" xmlns:smartFilterBar="sap.ui.comp.smartfilterbar" controllerName="zorg.ZOrganizations2.controller.Worklist">
 
 	<semantic:SemanticPage id="page" headerPinnable="true" toggleHeaderOnTitleClick="true">
 
 		<semantic:titleHeading>
-			<vm:VariantManagement standardItemText="My organizations">
-			</vm:VariantManagement>
+			<!--<vm:VariantManagement standardItemText="My organizations">-->
+			<!--</vm:VariantManagement>-->
 		</semantic:titleHeading>
 
 		<semantic:titleSnappedContent>
 			<Text text="{worklistView>/titleSnappedContent}"/>
 		</semantic:titleSnappedContent>
 		
-		<semantic:headerContent allowWrapping="true" >
-			<fb:FilterBar id="filterbar"  reset="onReset"  useToolbar = "false" showGoOnFB="false">
+		<semantic:headerContent allowWrapping="true">
+			<fb:FilterBar id="filterbar" reset="onReset" useToolbar="false" showGoOnFB="false">
 				<fb:filterGroupItems>
 					<fb:FilterGroupItem groupName="__$INTERNAL$" name="ORG" label="Organization" partOfCurrentVariant="true" visibleInFilterBar="true">
 						<fb:control>
-							<Input xmlns="sap.m" value="" id="srchOrganization" submit = "onFilterSubmit"/>
+							<Input xmlns="sap.m" value="" id="srchOrganization" submit="onFilterSubmit" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onValueHelpRequested" suggestionItems="{          path: '/zord_organiz_cds',          sorter: { path: 'name' }         }">
+								<core:Item key="{id}" text="{name} ({id})"/>								
+							</Input>
 						</fb:control>				
 					</fb:FilterGroupItem>		
 					<fb:FilterGroupItem groupName="__$INTERNAL$" name="INN" label="INN" partOfCurrentVariant="true" visibleInFilterBar="true">
 						<fb:control>
-							<Input xmlns="sap.m" value="" id="srchINN" submit = "onFilterSubmit"/>
+							<Input xmlns="sap.m" value="" id="srchINN" submit="onFilterSubmit" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onValueHelpRequestedINN" suggestionItems="{          path: '/zord_organiz_cds',          sorter: { path: 'inn' }         }">
+								<core:Item key="{inn}" text="{name} ({inn})"/>	
+								</Input>
 						</fb:control>				
 					</fb:FilterGroupItem>
 				</fb:filterGroupItems>	
 			</fb:FilterBar>
+			<!--<smartFilterBar:SmartFilterBar-->
+			<!--	id="smartFilterBar"-->
+			<!--	entitySet="zord_organiz_cds">-->
+			<!--	<smartFilterBar:controlConfiguration>-->
+			<!--		<smartFilterBar:ControlConfiguration-->
+			<!--			key="Organization"-->
+			<!--			visibleInAdvancedArea="true"-->
+			<!--			preventInitialDataFetchInValueHelpDialog="false">-->
+			<!--		</smartFilterBar:ControlConfiguration>-->
+			<!--	</smartFilterBar:controlConfiguration>-->
+			<!--</smartFilterBar:SmartFilterBar>			-->
 		</semantic:headerContent>
 
 		<semantic:content>
+			
 			<Table id="table" width="auto" items="{path: '/zord_organiz_cds',      sorter: {       path: 'name',       descending: false      }     }" noDataText="{worklistView>/tableNoDataText}" busyIndicatorDelay="{worklistView>/tableBusyDelay}" growing="true" growingScrollToLoad="true" updateFinished=".onUpdateFinished">
 				<headerToolbar>
 					<OverflowToolbar>
@@ -39,6 +55,8 @@
 								<OverflowToolbarLayoutData maxWidth="200px" priority="NeverOverflow"/>
 							</layoutData>
 						</SearchField>
+						<Button xmlns="sap.m" text="Add" id="addButton" icon="sap-icon://add" press = "onAddNew" />
+					<content/>
 					</OverflowToolbar>
 				</headerToolbar>
 				<columns>
@@ -58,7 +76,7 @@
 				</columns>
 
 				<items>
-					<ColumnListItem type="Navigation" press=".onPress">
+					<ColumnListItem id="listItemForTable" type="Navigation" press=".onPress">
 						<cells>
 							<ObjectIdentifier title="{name}" text="{id}"/>
 							<Text text="{inn}"/>

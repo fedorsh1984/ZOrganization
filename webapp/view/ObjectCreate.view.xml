@@ -1,5 +1,5 @@
 <mvc:View
-	controllerName="zorg.ZOrganizations2.controller.Object"
+	controllerName="zorg.ZOrganizations2.controller.ObjectCreate"
 	xmlns="sap.m"
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns:semantic="sap.f.semantic"
@@ -53,6 +53,10 @@
 			<Button text="Save" press = ".onSave"/>
 			<Button text="Cancel" press = ".onCancel"/>
 		</semantic:footerCustomActions>
+
+		<semantic:messagesIndicator>
+			<semantic:MessagesIndicator press="onMessagesButtonPress"/>
+		</semantic:messagesIndicator>
 
 	</semantic:SemanticPage>
 

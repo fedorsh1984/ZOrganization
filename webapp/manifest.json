@@ -16,7 +16,17 @@
 				"type": "OData",
 				"settings": {
 					"odataVersion": "2.0",
-					"localUri": "localService/metadata.xml"
+					"localUri": "localService/metadata.xml",
+					"annotations": [
+						"ZORDER_ANNO_MDL"
+					]
+				}
+			},
+			"ZORDER_ANNO_MDL": {
+				"uri": "../ZORDER_ANNO_MDL.xml",
+				"type": "ODataAnnotation",
+				"settings": {
+					"localUri": "../ZORDER_ANNO_MDL.xml"
 				}
 			}
 		},
@@ -42,6 +52,7 @@
 		}
 	},
 	"sap.ui5": {
+		"handleValidation": true,
 		"rootView": {
 			"viewName": "zorg.ZOrganizations2.view.App",
 			"type": "XML",
@@ -73,7 +84,14 @@
 			},
 			"": {
 				"dataSource": "mainService",
-				"preload": true
+				"preload": true,
+				"settings": {
+					"defaultBindingMode": "TwoWay"
+				}
+			},
+			"@i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"uri": "i18n/i18n.properties"
 			}
 		},
 		"services": {
@@ -113,7 +131,14 @@
 					"target": [
 						"object"
 					]
-				}
+				},
+				{	
+					"pattern": "objectcreate",
+					"name": "objectcreate",
+					"target": [
+						"objectcreate"
+					]
+				}				
 			],
 			"targets": {
 				"worklist": {
@@ -122,12 +147,18 @@
 					"viewLevel": 1,
 					"title": "{i18n>worklistViewTitle}"
 				},
+				"objectcreate": {
+					"viewName": "ObjectCreate",
+					"viewId": "objectcreate",
+					"viewLevel": 2
+				},		
 				"object": {
 					"viewName": "Object",
 					"viewId": "object",
 					"viewLevel": 2,
 					"title": "{i18n>objectViewTitle}"
 				},
+				
 				"objectNotFound": {
 					"viewName": "ObjectNotFound",
 					"viewId": "objectNotFound"
@@ -137,6 +168,7 @@
 					"viewId": "notFound"
 				}
 			}
-		}
+		},
+		"flexEnabled": true
 	}
 }

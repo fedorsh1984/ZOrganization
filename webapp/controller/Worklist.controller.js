@@ -3,8 +3,9 @@ sap.ui.define([
 	"sap/ui/model/json/JSONModel",
 	"../model/formatter",
 	"sap/ui/model/Filter",
-	"sap/ui/model/FilterOperator"
-], function (BaseController, JSONModel, formatter, Filter, FilterOperator) {
+	"sap/ui/model/FilterOperator",
+	'sap/m/Token'
+], function (BaseController, JSONModel, formatter, Filter, FilterOperator, Token) {
 	"use strict";
 
 	return BaseController.extend("zorg.ZOrganizations2.controller.Worklist", {
@@ -68,7 +69,7 @@ sap.ui.define([
 			var oFB = this.getView().byId("filterbar");
 			if (oFB) {
 				oFB.variantsInitialized();
-			}			
+			}
 		},
 
 		/* =========================================================== */
@@ -234,7 +235,162 @@ sap.ui.define([
 			} else {
 				return "Filtered by None";
 			}
-		}		
+		},
+		onValueHelpRequested: function(){
+			
+			this._oVHOrg = sap.ui.xmlfragment("zorg.ZOrganizations2.view.fragment.VHOrganization", this);
+			this.getView().addDependent(this._oVHOrg);
+
+			this._oVHOrg.getTableAsync().then(function (oTable) {
+				oTable.setModel(this.getModel());
+
+				var oColModel = new sap.ui.model.json.JSONModel();
+				    oColModel.setData({
+				        cols: [
+								 {label: "ID", template: "id"},
+				                 {label: "NAME", template: "name"}
+				            ]
+				    });
+				    
+				oTable.setModel(oColModel, "columns")    
+				var aCols = oColModel.getData().cols;
+				if (oTable.bindRows) {
+					oTable.bindAggregation("rows", "/zord_organiz_cds");
+				}
+
+				if (oTable.bindItems) {
+					oTable.bindAggregation("items", "/zord_organiz_cds", function () {
+						return new ColumnListItem({
+							cells: aCols.map(function (column) {
+								return new Label({ text: "{" + column.template + "}" });
+							})
+						});
+					});
+				}
+				this._oVHOrg.update();
+			}.bind(this));
+
+			var oToken = new Token();
+			oToken.setKey(this.oSelectOrganiz.getSelectedKey());
+			oToken.setText(this.oSelectOrganiz.getValue());
+			this._oVHOrg.setTokens([oToken]);
+			this._oVHOrg.open();			
+		},
+		onValueHelpOkPress: function (oEvent) {
+			var aTokens = oEvent.getParameter("tokens");
+			this.oSelectOrganiz.setSelectedKey(aTokens[0].getKey());
+			this._oVHOrg.close();
+		},
+
+		onValueHelpCancelPress: function () {
+			this._oVHOrg.close();
+		},
+
+		onValueHelpAfterClose: function () {
+			this._oVHOrg.destroy();
+		},
+		
+		onValueHelpRequestedINN: function() {
+			
+			var oInputVHINN = sap.ui.getCore().byId("INN");
+		    if(!this._oVHINN){
+		        this._oVHINN = new sap.ui.comp.valuehelpdialog.ValueHelpDialog("idValueHelp",{
+		        supportMultiselect: false,
+		        supportRangesOnly: false, 
+		        stretch: sap.ui.Device.system.phone,
+		        key: "inn",
+		        descriptionKey: "name",
+		        filtermode: "true",
+		        ok: function(oEvent){
+		            var aTokens = oEvent.getParameter("tokens");
+		            this.oSelectINN.setSelectedKey(aTokens[0].getKey());
+		            this._oVHINN.close();
+		        }.bind(this),
+		        cancel: function(){
+		            this._oVHINN.close();
+		        }.bind(this),
+		        afterClose:function(){
+		        	this._oVHINN.destroy();
+		        	this._oVHINN = undefined;
+		        }.bind(this)
+		        });
+		    }
+		    
+			this._oVHINN.getTableAsync().then(function (oTable) {
+				oTable.setModel(this.getModel());
+
+				var oColModel = new sap.ui.model.json.JSONModel();
+				    oColModel.setData({
+				        cols: [
+								 {label: "ID", template: "id"},
+				                 {label: "NAME", template: "name"},
+				                 {label: "INN", template: "inn"}
+				            ]
+				    });
+				    
+				oTable.setModel(oColModel, "columns")    
+				var aCols = oColModel.getData().cols;
+				if (oTable.bindRows) {
+					oTable.bindAggregation("rows", {path:"/zord_organiz_cds", 
+						filters:[new sap.ui.model.Filter( "id",sap.ui.model.FilterOperator.EQ, this.oSelectOrganiz.getSelectedKey() )]
+					});
+				// 	filters:  [
+    // new sap.ui.model.Filter( "Orderid",sap.ui.model.FilterOperator.EQ, iOrder ),
+					
+				}
+
+				if (oTable.bindItems) {
+					oTable.bindAggregation("items", "/zord_organiz_cds", function () {
+						return new ColumnListItem({
+							cells: aCols.map(function (column) {
+								return new Label({ text: "{" + column.template + "}" });
+							})
+						});
+					});
+				}
+				this._oVHINN.update();
+			}.bind(this));
+
+			var oToken = new Token();
+			oToken.setKey(this.oSelectINN.getSelectedKey());
+			oToken.setText(this.oSelectINN.getValue());
+			this._oVHINN.setTokens([oToken]);
+			this._oVHINN.open();			    
+			
+		},
+		onAddNew: function (Event) {
+			debugger;
+			//this.getRouter().navTo("objectcreatet", { });
+			
+			this.getRouter().navTo("objectcreate");
+			
+			// var oData = this.getView().getModel();
+			
+		 //   var oNewEntry = oData.createEntry('/zord_organiz_cds', 
+		 //   	{
+			// 		properties: {
+			// 		"name" : "Joz2",
+			// 	    "long_name" : "Sozuvelt",
+			// 	    "address" : "Moscow",
+			// 	    "director" : "Annush",
+			// 	    "inn" : "111111111111"
+			// 		},
+					
+			// 		success:function(){
+			// 			debugger;
+			// 		},
+			// 		error:function(){
+			// 			debugger;	
+			// 		}
+			// 	} );
+			// var lisItemForTable = this.getView().byId("listItemForTable").clone();
+			// lisItemForTable.setBindingContext(oNewEntry);
+			// var otable = this.getView().byId("table");
+			// // otable.addItem(lisItemForTable);
+			// oData.submitChanges();
+			// // this._showObject(lisItemForTable);
+			
+		}
 
 	});
 });

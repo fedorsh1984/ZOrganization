@@ -1,8 +1,10 @@
 sap.ui.define([
 	"./BaseController",
 	"sap/ui/model/json/JSONModel",
-	"../model/formatter"
-], function (BaseController, JSONModel, formatter) {
+	"../model/formatter",
+	"sap/m/MessageToast",
+	"sap/ui/core/Fragment"
+], function (BaseController, JSONModel, formatter,MessageToast,Fragment) {
 	"use strict";
 
 	return BaseController.extend("zorg.ZOrganizations2.controller.Object", {
@@ -37,6 +39,20 @@ sap.ui.define([
 					oViewModel.setProperty("/delay", iOriginalBusyDelay);
 				}
 			);
+			// Set the initial form to be the display one
+			this._showFormFragment("Display");
+			this._toggleButton(false);
+		},
+
+		onExit : function () {
+			for (var sPropertyName in this._formFragments) {
+				if (!this._formFragments.hasOwnProperty(sPropertyName) || this._formFragments[sPropertyName] === null) {
+					return;
+				}
+
+				this._formFragments[sPropertyName].destroy();
+				this._formFragments[sPropertyName] = null;
+			}
 		},
 
 		/* =========================================================== */
@@ -60,7 +76,7 @@ sap.ui.define([
 				});
 			oShareDialog.open();
 		},
-
+		
 
 		/* =========================================================== */
 		/* internal methods                                            */
@@ -142,8 +158,125 @@ sap.ui.define([
 			oResourceBundle.getText("shareSendEmailObjectSubject", [sObjectId]));
 			oViewModel.setProperty("/shareSendEmailMessage",
 			oResourceBundle.getText("shareSendEmailObjectMessage", [sObjectName, sObjectId, location.href]));
-		}
+		},
+		
+		_formFragments: {},
+		
+		_getFormFragment: function (sFragmentName) {
+			debugger;
+			var oFormFragment = this._formFragments[sFragmentName];
 
+			if (oFormFragment) {
+				return oFormFragment;
+			}
+			Fragment.load({
+					id: this.getView().getId(),
+					name: "zorg.ZOrganizations2.view.fragment." + sFragmentName
+				}).then(function (oFormFragment) {
+					debugger;
+					// connect dialog to the root view of this component (models, lifecycle)
+					this._formFragments[sFragmentName] = oFormFragment;
+					var oPage = this.byId("page");
+					oPage.setContent(this._formFragments[sFragmentName]);	
+				}.bind(this));
+			
+			// oFormFragment = sap.ui.xmlfragment(this.getView().getId(), "zorg.ZOrganizations2.view.fragment." + sFragmentName);
+
+			// this._formFragments[sFragmentName] = oFormFragment;
+			// return this._formFragments[sFragmentName];
+		},		
+		_showFormFragment:function(sFragmentName){
+			debugger;
+			var oPage = this.byId("page");
+			
+			var oCont = oPage.getContent();
+			if (oCont){
+				debugger;
+	            for(var sPropertyName in this._formFragments) {
+	                if(this._formFragments.hasOwnProperty(sPropertyName)) {
+	                	if (this._formFragments[sPropertyName]){
+			                this._formFragments[sPropertyName].destroy();
+			                this._formFragments[sPropertyName] = null;
+	                	}
+	                }
+	            }
+	        	oPage.destroyContent();	    
+			}	
+			this._getFormFragment(sFragmentName);
+			//oPage.setContent(this._getFormFragment(sFragmentName));		
+		},
+		
+		_toggleButtonsAndView : function (bEdit) {
+			var oView = this.getView();
+			this._toggleButton(bEdit);
+			// Set the right form type
+			// debugger;
+			this._showFormFragment(bEdit ? "Change" : "Display");
+		},
+		_toggleButton:function(bEdit){
+			var oPage = this.byId("page");
+			oPage.getEditAction().setVisible(!bEdit);
+			var oFooter = oPage.getFooterCustomActions();
+			oFooter.forEach((item, index) => item.setVisible(bEdit));
+			oPage.setShowFooter(bEdit);
+		},
+		
+		onPressEdit:function(oEvent){
+			debugger;
+			this._toggleButtonsAndView(true);
+		},
+		
+		onSave:function(oEvent){
+			this.getModel().submitChanges({
+				success: function(oData, sResponse) {
+					MessageToast.show("Data saved");
+					this.getView().getModel().refresh(true);
+				}.bind(this),
+				error: function(oError) {
+					MessageToast.show("Save error");
+				}.bind(this)
+			})
+			this._toggleButtonsAndView(false);
+		},
+		
+		onCancel:function(oEvent){
+			this.getModel().resetChanges();
+			this._toggleButtonsAndView(false);
+		},
+		
+		onDeleteEdit:function(oEvent){
+			debugger;
+			this.getModel().remove( oEvent.oSource.getBindingContext().getPath(),
+				{
+				success: function(oData, sResponse) {
+					MessageToast.show("Data deleted");
+					//this.getView().getModel().refresh(true);
+					this.getRouter().navTo("worklist");
+				}.bind(this),
+				error: function(oError) {
+					MessageToast.show("Data was not deleted");
+				}.bind(this)
+				});
+		},
+		
+		onNavBack: function() {
+			var oHistory = sap.ui.core.routing.History.getInstance(),
+				sPreviousHash = oHistory.getPreviousHash(),
+				oCrossAppNavigator = sap.ushell.Container.getService("CrossApplicationNavigation");
+
+			this.byId("page").destroyContent();
+
+			if (sPreviousHash !== undefined || !oCrossAppNavigator.isInitialNavigation()) {
+				history.go(-1);
+			} else {
+				oCrossAppNavigator.toExternal({
+					target: {
+						shellHash: "#"
+					}
+				});
+			}
+		}		
+		
 	});
 
 });

@@ -1,0 +1,49 @@
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+	<edmx:Reference Uri="../../catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_UI',Version='0001',SAP__Origin='LOCAL')/$value">
+		<edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="../../../sap/zorder_srv/$metadata">
+		<edmx:Include Namespace="ZORDER_SRV" Alias="SAP"/>
+	</edmx:Reference>
+	<edmx:DataServices>
+		<Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="zorder_anno_mdl.v1">
+			<Annotations Target="ZORDER_SRV.zord_organiz_cdsType">
+				<Annotation Term="UI.HeaderInfo">
+					<Record>
+						<PropertyValue Property="TypeName" String="Organizations cds"/>
+						<PropertyValue Property="TypeNamePlural" String="Organizations"/>
+					</Record>
+				</Annotation>
+				<Annotation Term="UI.LineItem">
+					<Collection>
+						<Record Type="UI.DataField">
+							<PropertyValue Property="Label" String="ID"/>
+							<PropertyValue Property="Value" Path="id"/>
+							<Annotation Term="UI.Importance" EnumMember="UI.ImportanceType/High"/>
+						</Record>
+						<Record Type="UI.DataField">
+							<PropertyValue Property="Label" String="NAME"/>
+							<PropertyValue Property="Value" Path="name"/>
+						</Record>
+						<Record Type="UI.DataField">
+							<PropertyValue Property="Label" String="LONG NAME"/>
+							<PropertyValue Property="Value" Path="long_name"/>
+						</Record>
+						<Record Type="UI.DataField">
+							<PropertyValue Property="Label" String="ADDRESS"/>
+							<PropertyValue Property="Value" Path="address"/>
+						</Record>
+						<Record Type="UI.DataField">
+							<PropertyValue Property="Label" String="DIRECTOR"/>
+							<PropertyValue Property="Value" Path="director"/>
+						</Record>
+						<Record Type="UI.DataField">
+							<PropertyValue Property="Label" String="INN"/>
+							<PropertyValue Property="Value" Path="inn"/>
+						</Record>
+					</Collection>
+				</Annotation>
+			</Annotations>
+		</Schema>
+	</edmx:DataServices>
+</edmx:Edmx>

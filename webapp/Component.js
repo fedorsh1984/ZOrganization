@@ -30,6 +30,9 @@ sap.ui.define([
 			// set the FLP model
 			this.setModel(models.createFLPModel(), "FLP");
 
+			// set message model
+			this.setModel(sap.ui.getCore().getMessageManager().getMessageModel(), "message");
+
 			// create the views based on the url/hash
 			this.getRouter().initialize();
 		},

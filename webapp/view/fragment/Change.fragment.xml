@@ -1,0 +1,70 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:l="sap.ui.layout"
+	xmlns:f="sap.ui.layout.form"
+	xmlns:core="sap.ui.core">
+	<VBox class="sapUiSmallMargin">
+		<f:SimpleForm id="SimpleFormDisplay480_12120"
+			editable="true"
+			layout="ResponsiveGridLayout"
+			title="Main data"
+			labelSpanXL="4"
+			labelSpanL="4"
+			labelSpanM="12"
+			labelSpanS="12"
+			adjustLabelSpan="false"
+			emptySpanXL="0"
+			emptySpanL="0"
+			emptySpanM="0"
+			emptySpanS="0"
+			columnsXL="2"
+			columnsL="2"
+			columnsM="1"
+			singleContainerFullSize="false" >
+			<f:content>
+				<Label text="Name" />
+				<Input value="{name}" type="Text" />
+				<Label text="Long name" />
+				<Input value="{long_name}" type="Text" />
+				<Label text="Address" />
+				<Input value="{address}" type="Text" />
+				<Label text="INN" />
+				<Input id = 'ddd' 
+					required="true"
+					value="{
+						path: 'inn',
+						type: 'sap.ui.model.type.String',
+					    constraints: {
+							search: '^HT-[0-9]{4}$'
+						}
+					}"
+
+					/>
+			</f:content>
+		</f:SimpleForm>
+
+		<f:SimpleForm id="SimpleFormDisplay480_12121"
+			editable="false"
+			layout="ResponsiveGridLayout"
+			title="Contact information"
+			labelSpanXL="4"
+			labelSpanL="4"
+			labelSpanM="12"
+			labelSpanS="12"
+			adjustLabelSpan="false"
+			emptySpanXL="0"
+			emptySpanL="0"
+			emptySpanM="0"
+			emptySpanS="0"
+			columnsXL="2"
+			columnsL="2"
+			columnsM="1"
+			singleContainerFullSize="false" >
+			<f:content>
+				<Label text="Director" />
+				<Input value="{director}" type="Text" />
+			</f:content>
+		</f:SimpleForm>		
+		
+	</VBox>
+</core:FragmentDefinition>
